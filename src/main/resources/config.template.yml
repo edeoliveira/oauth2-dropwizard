@@ -1,0 +1,69 @@
+# Resources configuration (demo purpose only)
+template: Welcome %s, to this non authenticated resource !
+defaultName: Stranger
+
+# ApiFest server
+oauth2Config:
+    url: https://apifest.instance:15000/oauth20
+    scope: api
+    client_id: dba99b80e2b632bd2d92be7ff9819facc0d6679b
+    client_secret: e00bc0dc8ae41dc4897ef4e8dd42eab0ec3d077336c6d6f43237a890e4c985b7
+    # Bit size of 128 to 256 bits (16 to 32 chars)
+    cookieSecretKey: XTgPOjYTGDJShjdZ
+
+# Credentials cache
+cacheSpec: maximumSize=10000, expireAfterWrite=5m
+
+# Client configuration settings. This is the client that connects to the ApiFest server
+#clientConfig:
+#  type: https
+#  keyStorePath: stores/myKeyStore.jks
+#  keyStorePassword: changeit
+#  trustStorePath: stores/myTrustStore.jks
+#  trustStorePassword: changeit
+#  validateCerts: false
+
+server:
+  applicationConnectors:
+    - type: https
+      port: 8080
+      keyStorePath: stores/myKeyStore.jks
+      keyStorePassword: changeit
+      validateCerts: false
+      certAlias: key
+  adminConnectors:
+    - type: https
+      port: 8081        
+      keyStorePath: stores/myKeyStore.jks
+      keyStorePassword: changeit
+      validateCerts: false
+      certAlias: key
+      
+# Logging settings.
+logging:
+
+  # The default level of all loggers. Can be OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
+  level: INFO
+
+  # Logger-specific levels.
+  loggers:
+
+    # Overrides the level for some classes.
+    # "org.edeoliveira.oauth2.dropwizard.resources": DEBUG
+    #"org.eclipse.jetty.io": INFO
+
+ # appenders:
+ # - type: file
+    # The file to which current statements will be logged.
+    #  currentLogFilename: ./logs/example.log
+
+    # When the log file rotates, the archived log will be renamed to this and gzipped. The
+    # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+    # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+    #  archivedLogFilenamePattern: ./logs/example-%d{yyyy-MM-dd-hh}.log.gz
+
+    # The number of archived files to keep.
+    #  archivedFileCount: 50
+
+    # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+    #  timeZone: UTC
