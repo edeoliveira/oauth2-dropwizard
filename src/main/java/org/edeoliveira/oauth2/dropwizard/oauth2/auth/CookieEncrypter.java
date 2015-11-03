@@ -85,7 +85,7 @@ public class CookieEncrypter {
         value = encode(value);
         int maxAge = Integer.parseInt(token.getExpiresIn());
         return new NewCookie(OAuth2AuthFactory.AUTH_COOKIE_NAME,
-                value, "/", domain, null, maxAge, true);
+                value, "/", domain, null, maxAge, true, true);
     }
 
     protected CookieToken readCookie(Cookie cookie) throws Exception {
