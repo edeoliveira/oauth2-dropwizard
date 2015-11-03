@@ -9,6 +9,15 @@ Using this cookie, a client browser (or any web/mobile app), which is by nature 
 ### Version
 1.0
 
+### Run
+
+Build with maven then copy src/main/resources/config.template.yml to config.yml and change values according to your configuration. 
+You can then run the server with the command :
+
+```
+java -jar oauth2-dropwizard-x.y.jar server config.yml
+```
+ 
 ### Tech
 
 OAuth2-DropWizard uses a number of open source projects to work properly:
