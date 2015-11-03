@@ -46,10 +46,10 @@ logging:
   level: INFO
 
   # Logger-specific levels.
-  loggers:
+  #loggers:
 
     # Overrides the level for some classes.
-    # "org.edeoliveira.oauth2.dropwizard.resources": DEBUG
+    #"org.edeoliveira.oauth2.dropwizard.resources": DEBUG
     #"org.eclipse.jetty.io": INFO
 
  # appenders:
