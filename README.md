@@ -1,6 +1,6 @@
 # OAuth2-DropWizard
 
-OAuth2-DropWizard is a dropwizard 0.8.1 implementation of an OAuth2 secured RESTful server.
+OAuth2-DropWizard is a dropwizard 0.8.x implementation of an OAuth2 secured RESTful server.
 
 It provides the /oauth20 endpoint to manage oauth authentication. Authentication token is stored in an encrypted cookie on the client. This provides automatic authentication propagation on subsequent accesses to protected resources by just using the generated client cookie.
 

@@ -10,7 +10,7 @@
     <name>oauth2-dropwizard</name>
 
     <properties>
-        <dropwizard.version>0.8.1</dropwizard.version>
+        <dropwizard.version>0.8.4</dropwizard.version>
     </properties>
 
     <dependencies>
