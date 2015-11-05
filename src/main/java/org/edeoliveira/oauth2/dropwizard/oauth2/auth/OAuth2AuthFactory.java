@@ -85,10 +85,13 @@ public final class OAuth2AuthFactory<T> extends AuthFactory<OAuth2Credentials, T
             // This is where the credentials are extracted from the request
             Cookie cookie = null;
 
-            for (Cookie c : request.getCookies()) {
-                if (AUTH_COOKIE_NAME.equals(c.getName())) {
-                    cookie = c;
-                    break;
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie c : request.getCookies()) {
+                    if (AUTH_COOKIE_NAME.equals(c.getName())) {
+                        cookie = c;
+                        break;
+                    }
                 }
             }
 

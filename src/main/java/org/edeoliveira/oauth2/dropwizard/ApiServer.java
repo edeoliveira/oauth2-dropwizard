@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.client.Client;
 import java.io.File;
 import java.net.URI;
+import java.net.URL;
 
 /**
  * The main {@link Application}. Setup and starts this api server.
@@ -48,11 +49,13 @@ public class ApiServer
     public static void main(String[] args)
             throws Exception {
         if (args == null || args.length != 2) {
-			URI uri = ApiServer.class.getClassLoader().getResource("config.yml").toURI();
-
-			if (!"jar".equals(uri.getScheme())) {
-				args = new String[]{"server", new File(uri).getAbsolutePath()};
-			}
+			URL url = ApiServer.class.getClassLoader().getResource("config.yml");
+            if (url != null) {
+                URI uri = url.toURI();
+                if (!"jar".equals(uri.getScheme())) {
+                    args = new String[]{"server", new File(uri).getAbsolutePath()};
+                }
+            }
         }
 
         new ApiServer().run(args);
