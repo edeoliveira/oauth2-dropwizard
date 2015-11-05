@@ -27,17 +27,17 @@ server:
   applicationConnectors:
     - type: https
       port: 8080
-      keyStorePath: stores/myKeyStore.jks
+      keyStorePath: src/main/resources/stores/myKeyStore.jks
       keyStorePassword: changeit
       validateCerts: false
-      certAlias: key
+      certAlias: oauth2-dropwizard
   adminConnectors:
     - type: https
       port: 8081        
-      keyStorePath: stores/myKeyStore.jks
+      keyStorePath: src/main/resources/stores/myKeyStore.jks
       keyStorePassword: changeit
       validateCerts: false
-      certAlias: key
+      certAlias: oauth2-dropwizard
       
 # Logging settings.
 logging:
