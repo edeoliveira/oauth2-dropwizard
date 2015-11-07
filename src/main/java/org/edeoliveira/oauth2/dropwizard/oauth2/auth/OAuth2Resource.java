@@ -160,8 +160,8 @@ public class OAuth2Resource {
         ResponseBuilder reply = Response.ok();
 
         for (Cookie c : request.getCookies()) {
-            if (OAuth2AuthFactory.AUTH_COOKIE_NAME.equals(c.getName())) {
-                reply.cookie(new NewCookie(OAuth2AuthFactory.AUTH_COOKIE_NAME,
+            if (OAuth2AuthFilter.AUTH_COOKIE_NAME.equals(c.getName())) {
+                reply.cookie(new NewCookie(OAuth2AuthFilter.AUTH_COOKIE_NAME,
                         null, "/", request.getServerName(), null, 0, true));
                 break;
             }

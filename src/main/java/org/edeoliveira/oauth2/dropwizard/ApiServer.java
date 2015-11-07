@@ -17,18 +17,20 @@
 package org.edeoliveira.oauth2.dropwizard;
 
 import io.dropwizard.Application;
-import io.dropwizard.auth.AuthFactory;
+import io.dropwizard.auth.AuthDynamicFeature;
+import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.auth.CachingAuthenticator;
 import io.dropwizard.setup.Environment;
 import org.edeoliveira.oauth2.dropwizard.health.OAuth2HealthCheck;
 import org.edeoliveira.oauth2.dropwizard.oauth2.User;
 import org.edeoliveira.oauth2.dropwizard.oauth2.auth.CookieEncrypter;
-import org.edeoliveira.oauth2.dropwizard.oauth2.auth.OAuth2AuthFactory;
+import org.edeoliveira.oauth2.dropwizard.oauth2.auth.OAuth2AuthFilter;
 import org.edeoliveira.oauth2.dropwizard.oauth2.auth.OAuth2Authenticator;
 import org.edeoliveira.oauth2.dropwizard.oauth2.auth.OAuth2Credentials;
 import org.edeoliveira.oauth2.dropwizard.oauth2.auth.OAuth2Resource;
 import org.edeoliveira.oauth2.dropwizard.oauth2.auth.RestClientBuilder;
 import org.edeoliveira.oauth2.dropwizard.resources.HelloResource;
+import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +46,6 @@ import java.net.URL;
  */
 public class ApiServer
         extends Application<ApiServerConfig> {
-    private final static Logger log = LoggerFactory.getLogger(ApiServer.class);
 
     public static void main(String[] args)
             throws Exception {
@@ -56,7 +57,7 @@ public class ApiServer
                     args = new String[]{"server", new File(uri).getAbsolutePath()};
                 }
             }
-        }
+		}
 
         new ApiServer().run(args);
     }
@@ -82,18 +83,25 @@ public class ApiServer
         env.healthChecks().register("Oauth2 server", healthCheck);
 
         // Setting up the oauth2 authenticator
-        CookieEncrypter engine = new CookieEncrypter(cfg.getOauth2Config().getCookieSecretKey());
+        CookieEncrypter cookieEncrypter = new CookieEncrypter(cfg.getOauth2Config().getCookieSecretKey());
         OAuth2Authenticator authenticator = new OAuth2Authenticator(cfg.getOauth2Config(), client);
 
         // Using cache authenticator
         CachingAuthenticator<OAuth2Credentials, User> cachingAuthenticator =
                 new CachingAuthenticator<OAuth2Credentials, User>(env.metrics(), authenticator, cfg.getCacheSpec());
 
-        env.jersey().register(AuthFactory.binder(new OAuth2AuthFactory<User>(false,
-                cachingAuthenticator, engine, User.class)));
+        final OAuth2AuthFilter<User> oAuth2AuthFilter =
+                new OAuth2AuthFilter.Builder<OAuth2Credentials, User, OAuth2AuthFilter<User>, CachingAuthenticator<OAuth2Credentials, User>>()
+                        .setAuthenticator(cachingAuthenticator)
+                        .setCookieEncrypter(cookieEncrypter)
+                        .build();
+
+        env.jersey().register(new AuthDynamicFeature(oAuth2AuthFilter));
+        env.jersey().register(RolesAllowedDynamicFeature.class);
+        env.jersey().register(new AuthValueFactoryProvider.Binder<User>(User.class));
 
         // Register the oauth2 resource that handles client authentication
-        final OAuth2Resource or = new OAuth2Resource(client, cfg.getOauth2Config(), engine);
+        final OAuth2Resource or = new OAuth2Resource(client, cfg.getOauth2Config(), cookieEncrypter);
         env.jersey().register(or);
     }
 

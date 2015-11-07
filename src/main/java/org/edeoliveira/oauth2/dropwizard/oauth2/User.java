@@ -18,12 +18,14 @@ package org.edeoliveira.oauth2.dropwizard.oauth2;
 
 import org.edeoliveira.oauth2.dropwizard.oauth2.apifest.AccessToken;
 
+import java.security.Principal;
+
 /**
  * Holds the authenticated principal of the current user and it's token if needed when accessing other services.
  *
  * @author Edouard De Oliveira
  */
-public class User {
+public class User implements Principal {
     private String name;
     private AccessToken token;
 
