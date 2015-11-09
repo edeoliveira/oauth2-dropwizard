@@ -20,6 +20,8 @@ import io.dropwizard.Application;
 import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.auth.CachingAuthenticator;
+import io.dropwizard.jetty.HttpsConnectorFactory;
+import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.setup.Environment;
 import org.edeoliveira.oauth2.dropwizard.health.OAuth2HealthCheck;
 import org.edeoliveira.oauth2.dropwizard.oauth2.User;
@@ -31,8 +33,6 @@ import org.edeoliveira.oauth2.dropwizard.oauth2.auth.OAuth2Resource;
 import org.edeoliveira.oauth2.dropwizard.oauth2.auth.RestClientBuilder;
 import org.edeoliveira.oauth2.dropwizard.resources.HelloResource;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import java.io.File;
@@ -84,6 +84,8 @@ public class ApiServer
 
         // Setting up the oauth2 authenticator
         CookieEncrypter cookieEncrypter = new CookieEncrypter(cfg.getOauth2Config().getCookieSecretKey());
+        boolean https = ((DefaultServerFactory)cfg.getServerFactory()).getApplicationConnectors().get(0) instanceof HttpsConnectorFactory;
+        cookieEncrypter.setSecureFlag(https);
         OAuth2Authenticator authenticator = new OAuth2Authenticator(cfg.getOauth2Config(), client);
 
         // Using cache authenticator
