@@ -19,6 +19,8 @@ package org.edeoliveira.oauth2.dropwizard;
 import io.dropwizard.Application;
 import io.dropwizard.auth.AuthFactory;
 import io.dropwizard.auth.CachingAuthenticator;
+import io.dropwizard.jetty.HttpsConnectorFactory;
+import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.setup.Environment;
 import org.edeoliveira.oauth2.dropwizard.health.OAuth2HealthCheck;
 import org.edeoliveira.oauth2.dropwizard.oauth2.User;
@@ -82,7 +84,9 @@ public class ApiServer
         env.healthChecks().register("Oauth2 server", healthCheck);
 
         // Setting up the oauth2 authenticator
-        CookieEncrypter engine = new CookieEncrypter(cfg.getOauth2Config().getCookieSecretKey());
+        CookieEncrypter cookieEncrypter = new CookieEncrypter(cfg.getOauth2Config().getCookieSecretKey());
+        boolean https = ((DefaultServerFactory)cfg.getServerFactory()).getApplicationConnectors().get(0) instanceof HttpsConnectorFactory;
+        cookieEncrypter.setSecureFlag(https);
         OAuth2Authenticator authenticator = new OAuth2Authenticator(cfg.getOauth2Config(), client);
 
         // Using cache authenticator
@@ -90,10 +94,10 @@ public class ApiServer
                 new CachingAuthenticator<OAuth2Credentials, User>(env.metrics(), authenticator, cfg.getCacheSpec());
 
         env.jersey().register(AuthFactory.binder(new OAuth2AuthFactory<User>(false,
-                cachingAuthenticator, engine, User.class)));
+                cachingAuthenticator, cookieEncrypter, User.class)));
 
         // Register the oauth2 resource that handles client authentication
-        final OAuth2Resource or = new OAuth2Resource(client, cfg.getOauth2Config(), engine);
+        final OAuth2Resource or = new OAuth2Resource(client, cfg.getOauth2Config(), cookieEncrypter);
         env.jersey().register(or);
     }
 

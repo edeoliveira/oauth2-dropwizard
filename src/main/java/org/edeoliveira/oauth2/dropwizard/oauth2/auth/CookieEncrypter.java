@@ -39,8 +39,10 @@ public class CookieEncrypter {
     private static final String ALGORITHM = "AES";
     private static final String CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
     private static final int BIT_LENGTH = 128; // 192 and 256 bits may not be available
+
     private transient SecretKeySpec keySpec;
     private ObjectMapper mapper = new ObjectMapper();
+    private boolean secureFlag = false;
 
     public CookieEncrypter() throws Exception {
         // Get the KeyGenerator
@@ -64,6 +66,14 @@ public class CookieEncrypter {
         keySpec = new SecretKeySpec(secretKey, ALGORITHM);
     }
 
+    public boolean isSecureFlag() {
+        return secureFlag;
+    }
+
+    public void setSecureFlag(boolean secureFlag) {
+        this.secureFlag = secureFlag;
+    }
+
     public String encode(String content) throws Exception {
         Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, keySpec);
@@ -85,7 +95,7 @@ public class CookieEncrypter {
         value = encode(value);
         int maxAge = Integer.parseInt(token.getExpiresIn());
         return new NewCookie(OAuth2AuthFactory.AUTH_COOKIE_NAME,
-                value, "/", domain, null, maxAge, true, true);
+                value, "/", domain, null, maxAge, secureFlag, true);
     }
 
     protected CookieToken readCookie(Cookie cookie) throws Exception {
