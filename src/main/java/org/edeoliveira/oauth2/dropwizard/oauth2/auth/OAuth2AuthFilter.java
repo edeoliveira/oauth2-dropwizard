@@ -141,10 +141,6 @@ public final class OAuth2AuthFilter<P extends Principal> extends AuthFilter<OAut
                 }
             }
 
-            if (creds == null) {
-                throw new AuthenticationException("No authorization data found");
-            }
-
             Optional<P> principal = authenticator.authenticate(creds);
 
             if (principal.isPresent()) {
