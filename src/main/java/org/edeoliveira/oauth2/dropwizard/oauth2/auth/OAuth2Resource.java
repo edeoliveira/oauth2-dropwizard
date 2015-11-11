@@ -100,7 +100,11 @@ public class OAuth2Resource {
             AccessToken token = response.readEntity(AccessToken.class);
             NewCookie nc = engine.buildCookie(username, token, request.getServerName());
 
-            return Response.ok().cookie(nc).build();
+            StringBuilder sb = new StringBuilder();
+            sb.append("{\"name\": \"").append(username).append("\", ");
+            sb.append("\"expiresIn\": \"").append(token.getExpiresIn()).append("\"}");
+
+            return Response.ok(sb.toString()).cookie(nc).build();
         } catch (Exception ex) {
             log.error("Error while building login response", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -136,7 +140,11 @@ public class OAuth2Resource {
             AccessToken newToken = response.readEntity(AccessToken.class);
             NewCookie nc = engine.buildCookie(user.getName(), newToken, request.getServerName());
 
-            return Response.ok().cookie(nc).build();
+            StringBuilder sb = new StringBuilder();
+            sb.append("{\"name\": \"").append(user.getName()).append("\", ");
+            sb.append("\"expiresIn\": \"").append(newToken.getExpiresIn()).append("\"}");
+
+            return Response.ok(sb.toString()).cookie(nc).build();
         } catch (Exception ex) {
             log.error("Error while building login response", ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
