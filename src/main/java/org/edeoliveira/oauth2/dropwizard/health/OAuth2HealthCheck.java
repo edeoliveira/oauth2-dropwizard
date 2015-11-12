@@ -38,7 +38,7 @@ public class OAuth2HealthCheck extends HealthCheck {
 
     public OAuth2HealthCheck(OAuth2Config cfg, Client client) {
         this.client = client;
-        this.validationUrl = cfg.getUrl() + ApifestApiPath.TOKENS_VALIDATION;
+        this.validationUrl = cfg.getUrl() + ApifestApiPath.TOKENS_VALIDATION.getPath();
     }
 
     @Override
