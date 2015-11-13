@@ -67,7 +67,7 @@ public class OAuth2Resource {
     public OAuth2Resource(Client client, OAuth2Config cfg, CookieEncrypter engine) {
         this.client = client;
         this.cfg = cfg;
-        this.tokenUrl = cfg.getUrl() + ApifestApiPath.TOKENS;
+        this.tokenUrl = cfg.getUrl() + ApifestApiPath.TOKENS.getPath();
         this.engine = engine;
     }
 
