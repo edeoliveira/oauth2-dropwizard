@@ -46,7 +46,7 @@ public class OAuth2Authenticator implements Authenticator<OAuth2Credentials, Use
     private String validationUrl;
 
     public OAuth2Authenticator(OAuth2Config cfg, Client client) {
-        this.validationUrl = cfg.getUrl() + ApifestApiPath.TOKENS_VALIDATION;
+        this.validationUrl = cfg.getUrl() + ApifestApiPath.TOKENS_VALIDATION.getPath();
         this.client = client;
     }
 
