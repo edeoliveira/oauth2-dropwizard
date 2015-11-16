@@ -23,7 +23,7 @@ java -jar oauth2-dropwizard-x.y.jar server config.yml
 OAuth2-DropWizard uses a number of open source projects to work properly:
 
 * [DropWizard] - Dropwizard is a Java framework for developing ops-friendly, high-performance, RESTful web services
-* [APIFest OAuth2 server] - A server that implements OAuth 2.0 server side as per http://tools.ietf.org/html/rfc6749 (using  an extensively modified fork i worked on)
+* [edeoliveira/APIFest OAuth2 server] - A server that implements an OAuth 2.0 server as per http://tools.ietf.org/html/rfc6749 (extensively modified fork)
 
 [DropWizard]:http://www.dropwizard.io/
-[APIFest OAuth2 server]:https://github.com/edeoliveira/apifest-oauth20
+[edeoliveira/APIFest OAuth2 server]:https://github.com/edeoliveira/apifest-oauth20
