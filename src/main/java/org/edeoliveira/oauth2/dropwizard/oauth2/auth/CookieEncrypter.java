@@ -25,7 +25,7 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.http.Cookie;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import java.nio.charset.Charset;
 
@@ -42,7 +42,7 @@ public class CookieEncrypter {
 
     private transient SecretKeySpec keySpec;
     private ObjectMapper mapper = new ObjectMapper();
-    private boolean secureFlag = false;
+    private boolean secureFlag;
 
     public CookieEncrypter() throws Exception {
         // Get the KeyGenerator
@@ -94,7 +94,7 @@ public class CookieEncrypter {
         String value = mapper.writeValueAsString(ct);
         value = encode(value);
         int maxAge = Integer.parseInt(token.getExpiresIn());
-        return new NewCookie(OAuth2AuthFactory.AUTH_COOKIE_NAME,
+        return new NewCookie(OAuth2AuthFilter.AUTH_COOKIE_NAME,
                 value, "/", domain, null, maxAge, secureFlag, true);
     }
 
