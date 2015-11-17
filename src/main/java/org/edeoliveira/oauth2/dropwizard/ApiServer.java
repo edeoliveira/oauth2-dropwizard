@@ -57,7 +57,7 @@ public class ApiServer
                     args = new String[]{"server", new File(uri).getAbsolutePath()};
                 }
             }
-		}
+        }
 
         new ApiServer().run(args);
     }
