@@ -21,10 +21,10 @@ package org.edeoliveira.oauth2.dropwizard.oauth2.auth;
  *
  * @author Edouard De Oliveira
  */
-public class OAuth2HeaderCredentials implements OAuth2Credentials {
+class OAuth2HeaderCredentials implements OAuth2Credentials {
     private String token;
 
-    public OAuth2HeaderCredentials(String token) {
+    OAuth2HeaderCredentials(String token) {
         this.token = token;
     }
 

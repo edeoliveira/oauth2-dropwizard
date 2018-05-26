@@ -42,7 +42,7 @@ public class OAuth2HealthCheck extends HealthCheck {
     }
 
     @Override
-    protected Result check() throws Exception {
+    protected Result check() {
         WebTarget target = client.target(validationUrl);
         Response response = null;
         try {

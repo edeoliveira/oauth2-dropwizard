@@ -10,7 +10,7 @@ public enum ApifestApiPath {
 
     private String path;
 
-    private ApifestApiPath(String path) {
+    ApifestApiPath(String path) {
         this.path = path;
     }
 

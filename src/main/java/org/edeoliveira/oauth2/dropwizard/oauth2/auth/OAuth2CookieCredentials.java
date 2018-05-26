@@ -23,11 +23,11 @@ import org.edeoliveira.oauth2.dropwizard.oauth2.apifest.AccessToken;
  *
  * @author Edouard De Oliveira
  */
-public class OAuth2CookieCredentials implements OAuth2Credentials {
+class OAuth2CookieCredentials implements OAuth2Credentials {
     private String username;
     private AccessToken token;
 
-    public OAuth2CookieCredentials(String username, AccessToken token) {
+    OAuth2CookieCredentials(String username, AccessToken token) {
         this.username = username;
         this.token = token;
     }

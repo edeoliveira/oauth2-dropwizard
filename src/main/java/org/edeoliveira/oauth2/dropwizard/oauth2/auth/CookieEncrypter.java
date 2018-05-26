@@ -55,7 +55,7 @@ public class CookieEncrypter {
         keySpec = new SecretKeySpec(secretKey, ALGORITHM);
     }
 
-    public CookieEncrypter(String secret) throws Exception {
+    public CookieEncrypter(String secret) {
         byte[] tmp = secret.getBytes(UTF8);
 
         if ((tmp.length * 8) < BIT_LENGTH)
@@ -66,22 +66,18 @@ public class CookieEncrypter {
         keySpec = new SecretKeySpec(secretKey, ALGORITHM);
     }
 
-    public boolean isSecureFlag() {
-        return secureFlag;
-    }
-
     public void setSecureFlag(boolean secureFlag) {
         this.secureFlag = secureFlag;
     }
 
-    public String encode(String content) throws Exception {
+    private String encode(String content) throws Exception {
         Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, keySpec);
         byte[] output = cipher.doFinal(content.getBytes(UTF8));
         return Base64.encodeBase64String(output);
     }
 
-    public String decode(String content) throws Exception {
+    private String decode(String content) throws Exception {
         Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, keySpec);
         byte[] output = cipher.doFinal(Base64.decodeBase64(content));
