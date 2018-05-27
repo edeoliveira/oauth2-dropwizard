@@ -163,15 +163,17 @@ public class OAuth2Resource {
     @GET
     @Timed
     @Path(value = "/logout")
-    public Response logout(@Context final HttpServletRequest request) {
+    public Response logout(@Auth User user, @Context final HttpServletRequest request) {
         // invalidate cookie if exists
         ResponseBuilder reply = Response.ok();
 
-        for (Cookie c : request.getCookies()) {
-            if (OAuth2AuthFilter.AUTH_COOKIE_NAME.equals(c.getName())) {
-                reply.cookie(new NewCookie(OAuth2AuthFilter.AUTH_COOKIE_NAME,
-                        null, "/", request.getServerName(), null, 0, true));
-                break;
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if (OAuth2AuthFilter.AUTH_COOKIE_NAME.equals(c.getName())) {
+                    reply.cookie(new NewCookie(OAuth2AuthFilter.AUTH_COOKIE_NAME,
+                            null, "/", request.getServerName(), c.getComment(), 0, c.getSecure()));
+                    break;
+                }
             }
         }
 
