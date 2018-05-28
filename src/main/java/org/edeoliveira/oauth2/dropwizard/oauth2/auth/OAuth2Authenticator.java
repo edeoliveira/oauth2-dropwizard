@@ -16,7 +16,6 @@
 
 package org.edeoliveira.oauth2.dropwizard.oauth2.auth;
 
-import com.google.common.base.Optional;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import org.apache.http.HttpStatus;
@@ -32,6 +31,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 /**
  * Takes the credentials extracted from the request by the SecurityProvider
@@ -74,13 +74,13 @@ public class OAuth2Authenticator implements Authenticator<OAuth2Credentials, Use
 
             TokenValidationResponse tvr = validateToken(token);
             if (!tvr.isValid())
-                return Optional.absent();
+                return Optional.empty();
 
             String username = tvr.getUserId();
             if (credentials instanceof OAuth2CookieCredentials)
                 username = ((OAuth2CookieCredentials) credentials).getUsername();
 
-            return Optional.fromNullable(new User(username, token));
+            return Optional.of(new User(username, token));
         } catch (Exception ex) {
             log.error("Exception during authentication", ex);
             throw new AuthenticationException("Invalid credentials");

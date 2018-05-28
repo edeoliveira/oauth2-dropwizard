@@ -24,6 +24,7 @@ import io.dropwizard.setup.Environment;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.edeoliveira.oauth2.dropwizard.ApiServerConfig;
 import org.glassfish.jersey.SslConfigurator;
@@ -70,7 +71,7 @@ public class RestClientBuilder extends JerseyClientBuilder {
         setupSSL(cfg);
     }
 
-    public RestClientBuilder setupSSL(ApiServerConfig cfg) {
+    private RestClientBuilder setupSSL(ApiServerConfig cfg) {
         SSLContext sslContext;
         ConnectorFactory factory = cfg.getClientConfig();
 
@@ -93,7 +94,7 @@ public class RestClientBuilder extends JerseyClientBuilder {
 
         SSLConnectionSocketFactory sslConnectionSocketFactory = hcf.isValidateCerts() ?
                 new SSLConnectionSocketFactory(sslContext) :
-                new SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+                new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
 
         Registry<ConnectionSocketFactory> registry =
                 RegistryBuilder.<ConnectionSocketFactory>create().register("https", sslConnectionSocketFactory).build();
@@ -133,7 +134,7 @@ public class RestClientBuilder extends JerseyClientBuilder {
     /**
      * Taken from http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html
      */
-    static class MyX509TrustManager implements X509TrustManager {
+    private static class MyX509TrustManager implements X509TrustManager {
 
         /*
          * The default PKIX X509TrustManager9.  We'll delegate
@@ -163,9 +164,9 @@ public class RestClientBuilder extends JerseyClientBuilder {
              * for an instance of X509TrustManager.  If found,
              * use that as our "default" trust manager.
              */
-            for (int i = 0; i < tms.length; i++) {
-                if (tms[i] instanceof X509TrustManager) {
-                    pkixTrustManager = (X509TrustManager) tms[i];
+            for (TrustManager tm : tms) {
+                if (tm instanceof X509TrustManager) {
+                    pkixTrustManager = (X509TrustManager) tm;
                     return;
                 }
             }
@@ -217,7 +218,7 @@ public class RestClientBuilder extends JerseyClientBuilder {
     /**
      * Inspired from http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html
      */
-    static class MyX509KeyManager implements X509KeyManager {
+    private static class MyX509KeyManager implements X509KeyManager {
 
         /*
          * The default PKIX X509KeyManager.  We'll delegate
@@ -246,9 +247,9 @@ public class RestClientBuilder extends JerseyClientBuilder {
              * for an instance of X509KeyManager.  If found,
              * use that as our "default" key manager.
              */
-            for (int i = 0; i < kms.length; i++) {
-                if (kms[i] instanceof X509KeyManager) {
-                    pkixKeyManager = (X509KeyManager) kms[i];
+            for (KeyManager km : kms) {
+                if (km instanceof X509KeyManager) {
+                    pkixKeyManager = (X509KeyManager) km;
                     return;
                 }
             }

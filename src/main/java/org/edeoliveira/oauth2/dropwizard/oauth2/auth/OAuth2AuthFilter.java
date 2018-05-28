@@ -16,15 +16,7 @@
 
 package org.edeoliveira.oauth2.dropwizard.oauth2.auth;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import io.dropwizard.auth.AuthFilter;
-import io.dropwizard.auth.AuthenticationException;
-import io.dropwizard.auth.Authenticator;
-import io.dropwizard.auth.Authorizer;
-import io.dropwizard.auth.DefaultUnauthorizedHandler;
-import io.dropwizard.auth.PermitAllAuthorizer;
-import io.dropwizard.auth.UnauthorizedHandler;
+import io.dropwizard.auth.*;
 import org.edeoliveira.oauth2.dropwizard.oauth2.apifest.CookieToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +29,14 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.io.IOException;
 import java.security.Principal;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A Dropwizard AuthFilter for OAuth2 HTTP authentication.
  *
- * @param <P extends Principal> the principal type.
  * @author Edouard De Oliveira
  */
 @Priority(Priorities.AUTHENTICATION)
@@ -64,11 +56,8 @@ public final class OAuth2AuthFilter<P extends Principal> extends AuthFilter<OAut
      * Mandatory parameters to be set :
      * <p>An {@link Authenticator}</p>
      * <p>An {@link CookieEncrypter}</p>
-     *
-     * @param <P> the principal
-     * @param <T> the filter
      */
-    public static class Builder<C, P extends Principal, T extends OAuth2AuthFilter<P>, A extends Authenticator<OAuth2Credentials, P>> {
+    public static class Builder<P extends Principal, A extends Authenticator<OAuth2Credentials, P>> {
         private String prefix = BEARER_TYPE;
         private CookieEncrypter cookieEncrypter;
         private A authenticator;
@@ -78,39 +67,39 @@ public final class OAuth2AuthFilter<P extends Principal> extends AuthFilter<OAut
         public Builder() {
         }
 
-        public OAuth2AuthFilter.Builder<C, P, T, A> setPrefix(String prefix) {
-            this.prefix = prefix;
-            return this;
-        }
-
-        public OAuth2AuthFilter.Builder<C, P, T, A> setCookieEncrypter(CookieEncrypter cookieEncrypter) {
+        public OAuth2AuthFilter.Builder<P, A> setCookieEncrypter(CookieEncrypter cookieEncrypter) {
             this.cookieEncrypter = cookieEncrypter;
             return this;
         }
 
-        public OAuth2AuthFilter.Builder<C, P, T, A> setAuthorizer(Authorizer<P> authorizer) {
-            this.authorizer = authorizer;
-            return this;
-        }
-
-        public OAuth2AuthFilter.Builder<C, P, T, A> setAuthenticator(A authenticator) {
+        public OAuth2AuthFilter.Builder<P, A> setAuthenticator(A authenticator) {
             this.authenticator = authenticator;
             return this;
         }
 
-        public OAuth2AuthFilter.Builder<C, P, T, A> setUnauthorizedHandler(UnauthorizedHandler unauthorizedHandler) {
+        public OAuth2AuthFilter.Builder<P, A> setPrefix(String prefix) {
+            this.prefix = prefix;
+            return this;
+        }
+
+        public OAuth2AuthFilter.Builder<P, A> setAuthorizer(Authorizer<P> authorizer) {
+            this.authorizer = authorizer;
+            return this;
+        }
+
+        public OAuth2AuthFilter.Builder<P, A> setUnauthorizedHandler(UnauthorizedHandler unauthorizedHandler) {
             this.unauthorizedHandler = unauthorizedHandler;
             return this;
         }
 
         public OAuth2AuthFilter<P> build() {
-            Preconditions.checkArgument(this.prefix != null, "Prefix is not set");
-            Preconditions.checkArgument(this.cookieEncrypter != null, "CookieEncrypter is not set");
-            Preconditions.checkArgument(this.authenticator != null, "Authenticator is not set");
-            Preconditions.checkArgument(this.authorizer != null, "Authorizer is not set");
-            Preconditions.checkArgument(this.unauthorizedHandler != null, "Unauthorized handler is not set");
+            Objects.requireNonNull(this.prefix, "Prefix is not set");
+            Objects.requireNonNull(this.cookieEncrypter, "CookieEncrypter is not set");
+            Objects.requireNonNull(this.authenticator, "Authenticator is not set");
+            Objects.requireNonNull(this.authorizer, "Authorizer is not set");
+            Objects.requireNonNull(this.unauthorizedHandler, "Unauthorized handler is not set");
 
-            OAuth2AuthFilter<P> filter = new OAuth2AuthFilter<P>();
+            OAuth2AuthFilter<P> filter = new OAuth2AuthFilter<>();
             filter.prefix = this.prefix;
             filter.cookieEncrypter = this.cookieEncrypter;
             filter.authenticator = this.authenticator;
@@ -121,7 +110,7 @@ public final class OAuth2AuthFilter<P extends Principal> extends AuthFilter<OAut
         }
     }
 
-    public void filter(final ContainerRequestContext requestContext) throws IOException {
+    public void filter(final ContainerRequestContext requestContext) {
         try {
             OAuth2Credentials creds = null;
 
@@ -140,6 +129,9 @@ public final class OAuth2AuthFilter<P extends Principal> extends AuthFilter<OAut
                     creds = new OAuth2HeaderCredentials(authToken);
                 }
             }
+
+            if (creds == null)
+                throw new WebApplicationException(Response.Status.UNAUTHORIZED);
 
             Optional<P> principal = authenticator.authenticate(creds);
 
@@ -166,6 +158,8 @@ public final class OAuth2AuthFilter<P extends Principal> extends AuthFilter<OAut
         } catch (AuthenticationException e) {
             log.warn("Error authenticating credentials", e);
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+        } catch (WebApplicationException wex) {
+            throw wex;
         } catch (Exception ex) {
             log.error("Exception during cookie extraction", ex);
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);

@@ -23,7 +23,6 @@ import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.jetty.ConnectorFactory;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 /**

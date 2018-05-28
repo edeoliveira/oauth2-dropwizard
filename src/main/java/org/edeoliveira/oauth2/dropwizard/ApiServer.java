@@ -20,6 +20,7 @@ import io.dropwizard.Application;
 import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.auth.CachingAuthenticator;
+import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.jetty.HttpsConnectorFactory;
 import io.dropwizard.server.DefaultServerFactory;
 import io.dropwizard.setup.Environment;
@@ -67,14 +68,6 @@ public class ApiServer
         return "oauth2-dropwizard";
     }
 
-    private void registerResources(ApiServerConfig cfg, Environment env)
-            throws Exception {
-
-        // This is a test resource for demo purpose
-        final HelloResource resource = new HelloResource(cfg.getTemplate(), cfg.getDefaultName());
-        env.jersey().register(resource);
-    }
-
     private void setupAuthentication(ApiServerConfig cfg, Environment env) throws Exception {
         final Client client = new RestClientBuilder(env, cfg).build(getName());
 
@@ -83,35 +76,40 @@ public class ApiServer
         env.healthChecks().register("Oauth2 server", healthCheck);
 
         // Setting up the oauth2 authenticator
-        CookieEncrypter cookieEncrypter = new CookieEncrypter(cfg.getOauth2Config().getCookieSecretKey());
         boolean https = ((DefaultServerFactory)cfg.getServerFactory()).getApplicationConnectors().get(0) instanceof HttpsConnectorFactory;
+        CookieEncrypter cookieEncrypter = new CookieEncrypter(cfg.getOauth2Config().getCookieSecretKey());
         cookieEncrypter.setSecureFlag(https);
         OAuth2Authenticator authenticator = new OAuth2Authenticator(cfg.getOauth2Config(), client);
 
         // Using cache authenticator
         CachingAuthenticator<OAuth2Credentials, User> cachingAuthenticator =
-                new CachingAuthenticator<OAuth2Credentials, User>(env.metrics(), authenticator, cfg.getCacheSpec());
+                new CachingAuthenticator<>(env.metrics(), authenticator, cfg.getCacheSpec());
 
         final OAuth2AuthFilter<User> oAuth2AuthFilter =
-                new OAuth2AuthFilter.Builder<OAuth2Credentials, User, OAuth2AuthFilter<User>, CachingAuthenticator<OAuth2Credentials, User>>()
+                new OAuth2AuthFilter.Builder<User, CachingAuthenticator<OAuth2Credentials, User>>()
                         .setAuthenticator(cachingAuthenticator)
                         .setCookieEncrypter(cookieEncrypter)
                         .build();
 
-        env.jersey().register(new AuthDynamicFeature(oAuth2AuthFilter));
-        env.jersey().register(RolesAllowedDynamicFeature.class);
-        env.jersey().register(new AuthValueFactoryProvider.Binder<User>(User.class));
+        JerseyEnvironment jerseyEnvironment = env.jersey();
+        jerseyEnvironment.register(new AuthDynamicFeature(oAuth2AuthFilter));
+        jerseyEnvironment.register(RolesAllowedDynamicFeature.class);
+        jerseyEnvironment.register(new AuthValueFactoryProvider.Binder<>(User.class));
 
         // Register the oauth2 resource that handles client authentication
-        final OAuth2Resource or = new OAuth2Resource(client, cfg.getOauth2Config(), cookieEncrypter);
-        env.jersey().register(or);
+        jerseyEnvironment.register(new OAuth2Resource(client, cfg.getOauth2Config(), cookieEncrypter));
+    }
+
+    private void registerTestResources(ApiServerConfig cfg, Environment env) {
+        // This is a test resource for demo purpose
+        final HelloResource resource = new HelloResource(cfg.getTemplate(), cfg.getDefaultName());
+        env.jersey().register(resource);
     }
 
     @Override
     public void run(ApiServerConfig cfg, Environment env)
             throws Exception {
         setupAuthentication(cfg, env);
-
-        registerResources(cfg, env);
+        registerTestResources(cfg, env);
     }
 }
